@@ -2,7 +2,7 @@
 
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./globals.css";
 import Sidebar from "./components/Sidebar";
 
@@ -23,6 +23,12 @@ export default function RootLayout({
 }>) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  useEffect(() => {
+    const handleToggle = () => setSidebarOpen(prev => !prev);
+    window.addEventListener('toggleSidebar', handleToggle);
+    return () => window.removeEventListener('toggleSidebar', handleToggle);
+  }, []);
+
   return (
     <html lang="en">
       <body
@@ -32,36 +38,8 @@ export default function RootLayout({
           <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
           <main className="main">
             {children}
-            {/* Hamburger button for mobile */}
-            <button
-              className="hamburger"
-              onClick={() => setSidebarOpen(true)}
-              style={{
-                position: 'fixed',
-                top: 10,
-                left: 10,
-                zIndex: 1000,
-                background: '#2563eb',
-                color: '#fff',
-                border: 'none',
-                borderRadius: 8,
-                padding: '8px 12px',
-                cursor: 'pointer',
-                display: 'none',
-                fontSize: 16,
-              }}
-            >
-              ☰
-            </button>
           </main>
         </div>
-        <style>{`
-          @media (max-width: 768px) {
-            .hamburger {
-              display: block !important;
-            }
-          }
-        `}</style>
       </body>
     </html>
   );

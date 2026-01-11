@@ -104,6 +104,9 @@ export default function DashboardPage() {
     <>
       {/* Topbar */}
       <header className={`${styles.topbar} fade-in`}>
+        <button className={styles.hamburger} onClick={() => window.dispatchEvent(new CustomEvent('toggleSidebar'))}>
+          ☰
+        </button>
         <div className={styles.topLeft}>
           <h1 className={styles.pageTitle}>Dashboard</h1>
           <p className={styles.pageSubtitle}>

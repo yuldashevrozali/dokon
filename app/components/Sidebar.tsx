@@ -6,16 +6,19 @@ function NavItem({
   label,
   active,
   href,
+  onClick,
 }: {
   icon: React.ReactNode
   label: string
   active?: boolean
   href: string
+  onClick?: () => void
 }) {
   return (
     <Link
       className={`${styles.navItem} ${active ? styles.navActive : ""}`}
       href={href}
+      onClick={onClick}
     >
       <span className={styles.navIcon}>{icon}</span>
       <span className={styles.navLabel}>{label}</span>
@@ -201,12 +204,12 @@ export default function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose
       </div>
 
       <nav className={styles.nav}>
-        <NavItem active icon={<IconHome />} label="Dashboard" href="/dashboard" />
-        <NavItem icon={<IconCash />} label="Savdo qilish" href="/savdo" />
-        <NavItem icon={<IconBox />} label="Mahsulotlar" href="/mahsulotlar" />
-        <NavItem icon={<IconUsers />} label="Mijozlar / Qarz" href="/qarz" />
-        <NavItem icon={<IconReport />} label="Hisobot" href="/hisobot" />
-        <NavItem icon={<IconSettings />} label="Sozlamalar" href="/sozlamalar" />
+        <NavItem active icon={<IconHome />} label="Dashboard" href="/dashboard" onClick={onClose} />
+        <NavItem icon={<IconCash />} label="Savdo qilish" href="/savdo" onClick={onClose} />
+        <NavItem icon={<IconBox />} label="Mahsulotlar" href="/mahsulotlar" onClick={onClose} />
+        <NavItem icon={<IconUsers />} label="Mijozlar / Qarz" href="/qarz" onClick={onClose} />
+        <NavItem icon={<IconReport />} label="Hisobot" href="/hisobot" onClick={onClose} />
+        <NavItem icon={<IconSettings />} label="Sozlamalar" href="/sozlamalar" onClick={onClose} />
       </nav>
 
       <div className={styles.sidebarFooter}>
