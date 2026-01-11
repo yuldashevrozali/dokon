@@ -310,7 +310,6 @@ export default function SavdoPage() {
             cursor: 'pointer',
             fontSize: 16,
             marginRight: 10,
-            display: 'none',
           }}
           className="hamburger"
           onClick={() => window.dispatchEvent(new CustomEvent('toggleSidebar'))}
@@ -318,7 +317,7 @@ export default function SavdoPage() {
           ☰
         </button>
         <div>
-          <h1 style={styles.title}> Savdo qilish</h1>
+          <h1 style={styles.title}>Savdo qilish</h1>
           <p style={styles.sub}>
             Mahsulotlarni tanlang va sotib yuboring. Qoldiq avtomatik yangilanadi.
           </p>

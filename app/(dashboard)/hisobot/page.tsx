@@ -153,17 +153,18 @@ export default function HisobotPage() {
             cursor: 'pointer',
             fontSize: 16,
             marginRight: 10,
-            display: 'none',
           }}
           className="hamburger"
           onClick={() => window.dispatchEvent(new CustomEvent('toggleSidebar'))}
         >
           ☰
         </button>
-        <h1 style={styles.title}>📊 Hisobot</h1>
-        <p style={styles.sub}>
-          Savdo statistikasi: bugun, hafta, oy va eng ko‘p sotilgan mahsulotlar.
-        </p>
+        <div>
+          <h1 style={styles.title}>📊 Hisobot</h1>
+          <p style={styles.sub}>
+            Savdo statistikasi: bugun, hafta, oy va eng ko‘p sotilgan mahsulotlar.
+          </p>
+        </div>
       </div>
 
       <div style={styles.grid} className="slide-in">

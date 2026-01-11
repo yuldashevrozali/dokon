@@ -105,7 +105,7 @@ export default function DashboardPage() {
     <>
       {/* Topbar */}
       <header className={`${styles.topbar} fade-in`}>
-        <button className={styles.hamburger} onClick={() => window.dispatchEvent(new CustomEvent('toggleSidebar'))}>
+        <button className={`${styles.hamburger} hamburger`} onClick={() => window.dispatchEvent(new CustomEvent('toggleSidebar'))}>
           ☰
         </button>
         <div className={styles.topLeft}>

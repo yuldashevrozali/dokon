@@ -425,7 +425,6 @@ export default function ProductsPage() {
             cursor: 'pointer',
             fontSize: 16,
             marginRight: 10,
-            display: 'none',
           }}
           className="hamburger"
           onClick={() => window.dispatchEvent(new CustomEvent('toggleSidebar'))}
