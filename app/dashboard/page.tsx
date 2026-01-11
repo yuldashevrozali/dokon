@@ -103,7 +103,7 @@ export default function DashboardPage() {
   return (
     <>
       {/* Topbar */}
-      <header className={styles.topbar}>
+      <header className={`${styles.topbar} fade-in`}>
         <div className={styles.topLeft}>
           <h1 className={styles.pageTitle}>Dashboard</h1>
           <p className={styles.pageSubtitle}>
@@ -130,11 +130,11 @@ export default function DashboardPage() {
       </header>
 
       {/* Content grid */}
-      <section className={styles.content}>
+      <section className={`${styles.content} slide-in`}>
         {/* Stat cards */}
         <div className={styles.statsGrid}>
-          {stats.map((s) => (
-            <div key={s.label} className={styles.statCard}>
+          {stats.map((s, i) => (
+            <div key={s.label} className={`${styles.statCard} fade-in`} style={{ animationDelay: `${i * 0.1}s` }}>
               <div className={styles.statTop}>
                 <div className={styles.statIcon}>{s.icon}</div>
                 <div className={styles.statLabel}>{s.label}</div>
@@ -146,7 +146,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick actions */}
-        <div className={styles.quickRow}>
+        <div className={`${styles.quickRow} fade-in`} style={{ animationDelay: '0.4s' }}>
           <button className={styles.primaryBtn}>
             <IconPlus />
             Yangi savdo
@@ -166,7 +166,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Two columns */}
-        <div className={styles.twoCol}>
+        <div className={`${styles.twoCol} fade-in`} style={{ animationDelay: '0.5s' }}>
           {/* Left column */}
           <div className={styles.panel}>
             <div className={styles.panelHeader}>

@@ -178,7 +178,7 @@ function IconLogout() {
 
 export default function Sidebar() {
   return (
-    <aside className={styles.sidebar}>
+    <aside className={`${styles.sidebar} slide-in`}>
       <div className={styles.brand}>
         <div className={styles.brandIcon}>D</div>
         <div>

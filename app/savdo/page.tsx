@@ -171,7 +171,7 @@ export default function SavdoPage() {
       gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
       gap: 12,
       marginBottom: 20,
-    },
+    } as React.CSSProperties,
     card: {
       background: "#fff",
       border: "1px solid #e8ebf3",
@@ -237,7 +237,7 @@ export default function SavdoPage() {
         <button style={styles.backBtn} onClick={() => setSelectedProduct(null)}>
           ← Orqaga
         </button>
-        <div style={styles.sellSection}>
+        <div style={styles.sellSection} className="sellSection">
           <h2 style={styles.sellTitle}>📦 {selectedProduct.name} sotish</h2>
           <div style={styles.sellForm}>
             <div>
@@ -261,12 +261,40 @@ export default function SavdoPage() {
             </button>
           </div>
         </div>
+  
+        <style>{`
+          @media (max-width: 768px) {
+            .grid {
+              grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
+            }
+            .sellSection {
+              max-width: 100% !important;
+              margin: 0 !important;
+            }
+          }
+          @media (max-width: 480px) {
+            .page {
+              padding: 12px !important;
+            }
+            .grid {
+              grid-template-columns: 1fr !important;
+            }
+            .header {
+              flex-direction: column !important;
+              align-items: flex-start !important;
+            }
+            .tools {
+              flex-direction: column !important;
+              align-items: stretch !important;
+            }
+          }
+        `}</style>
       </div>
     )
   }
 
   return (
-    <div style={styles.page}>
+    <div style={styles.page} className="page fade-in">
       <div style={styles.header}>
         <div>
           <h1 style={styles.title}> Savdo qilish</h1>
@@ -276,7 +304,7 @@ export default function SavdoPage() {
         </div>
       </div>
 
-      <div style={styles.tools}>
+      <div style={styles.tools} className="slide-in">
         <input
           style={styles.input}
           value={query}
@@ -299,7 +327,7 @@ export default function SavdoPage() {
         </div>
       </div>
 
-      <div style={styles.grid}>
+      <div style={styles.grid} className="grid">
         {availableProducts.length === 0 ? (
           <div style={{ ...styles.card, textAlign: "center", gridColumn: "1 / -1" }}>
             <p style={{ color: "#64748b" }}>Savdo qilish uchun mahsulot yo‘q yoki topilmadi.</p>

@@ -141,7 +141,7 @@ export default function HisobotPage() {
   }
 
   return (
-    <div style={styles.page}>
+    <div style={styles.page} className="fade-in">
       <div style={styles.header}>
         <h1 style={styles.title}>📊 Hisobot</h1>
         <p style={styles.sub}>
@@ -149,8 +149,8 @@ export default function HisobotPage() {
         </p>
       </div>
 
-      <div style={styles.grid}>
-        <div style={styles.card}>
+      <div style={styles.grid} className="slide-in">
+        <div style={styles.card} className="bounce-in">
           <div style={styles.cardTitle}>📅 Bugun</div>
           <div style={styles.stat}>
             <span style={styles.statLabel}>Savdo:</span>
@@ -166,7 +166,7 @@ export default function HisobotPage() {
           </div>
         </div>
 
-        <div style={styles.card}>
+        <div style={{ ...styles.card, animationDelay: '0.1s' }} className="bounce-in">
           <div style={styles.cardTitle}>📆 Bu hafta</div>
           <div style={styles.stat}>
             <span style={styles.statLabel}>Savdo:</span>
@@ -182,7 +182,7 @@ export default function HisobotPage() {
           </div>
         </div>
 
-        <div style={styles.card}>
+        <div style={{ ...styles.card, animationDelay: '0.2s' }} className="bounce-in">
           <div style={styles.cardTitle}>📊 Bu oy</div>
           <div style={styles.stat}>
             <span style={styles.statLabel}>Savdo:</span>
@@ -199,7 +199,7 @@ export default function HisobotPage() {
         </div>
       </div>
 
-      <div style={styles.tableWrap}>
+      <div style={{ ...styles.tableWrap, animationDelay: '0.6s' }} className="fade-in">
         <table style={styles.table}>
           <thead>
             <tr>

@@ -412,7 +412,7 @@ export default function ProductsPage() {
   }
 
   return (
-    <div style={styles.page}>
+    <div style={styles.page} className="fade-in">
       {/* Header */}
       <div style={styles.header}>
         <div>
@@ -434,16 +434,16 @@ export default function ProductsPage() {
       </div>
 
       {/* Stats */}
-      <div style={styles.grid}>
-        <div style={styles.card}>
+      <div style={styles.grid} className="slide-in">
+        <div style={styles.card} className="bounce-in">
           <div style={styles.cardLabel}>Mahsulotlar</div>
           <div style={styles.cardValue}>{totals.items} ta</div>
         </div>
-        <div style={styles.card}>
+        <div style={{ ...styles.card, animationDelay: '0.1s' }} className="bounce-in">
           <div style={styles.cardLabel}>Jami qoldiq</div>
           <div style={styles.cardValue}>{totals.stockTotal} birlik</div>
         </div>
-        <div style={styles.card}>
+        <div style={{ ...styles.card, animationDelay: '0.2s' }} className="bounce-in">
           <div style={styles.cardLabel}>Oz qolganlar</div>
           <div style={styles.cardValue}>{totals.low} ta</div>
         </div>
@@ -478,7 +478,7 @@ export default function ProductsPage() {
       </div>
 
       {/* Table */}
-      <div style={styles.tableWrap}>
+      <div style={{ ...styles.tableWrap, animationDelay: '0.5s' }} className="fade-in">
         <table style={styles.table}>
           <thead>
             <tr>
