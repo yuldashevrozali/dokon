@@ -2,6 +2,7 @@
 
 import React from "react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import styles from "../dashboard/dashboard.module.css"
 
 function NavItem({
@@ -190,6 +191,8 @@ export default function Sidebar({
   isOpen?: boolean
   onClose?: () => void
 }) {
+  const pathname = usePathname()
+
   return (
     <>
       {/* Overlay for mobile */}
@@ -215,12 +218,12 @@ export default function Sidebar({
         </div>
 
         <nav className={styles.nav}>
-          <NavItem active icon={<IconHome />} label="Dashboard" href="/dashboard" onNavigate={onClose} />
-          <NavItem icon={<IconCash />} label="Savdo qilish" href="/savdo" onNavigate={onClose} />
-          <NavItem icon={<IconBox />} label="Mahsulotlar" href="/mahsulotlar" onNavigate={onClose} />
-          <NavItem icon={<IconUsers />} label="Mijozlar / Qarz" href="/qarz" onNavigate={onClose} />
-          <NavItem icon={<IconReport />} label="Hisobot" href="/hisobot" onNavigate={onClose} />
-          <NavItem icon={<IconSettings />} label="Sozlamalar" href="/sozlamalar" onNavigate={onClose} />
+          <NavItem active={pathname === "/dashboard"} icon={<IconHome />} label="Dashboard" href="/dashboard" onNavigate={onClose} />
+          <NavItem active={pathname === "/savdo"} icon={<IconCash />} label="Savdo qilish" href="/savdo" onNavigate={onClose} />
+          <NavItem active={pathname === "/mahsulotlar"} icon={<IconBox />} label="Mahsulotlar" href="/mahsulotlar" onNavigate={onClose} />
+          <NavItem active={pathname === "/qarz"} icon={<IconUsers />} label="Mijozlar / Qarz" href="/qarz" onNavigate={onClose} />
+          <NavItem active={pathname === "/hisobot"} icon={<IconReport />} label="Hisobot" href="/hisobot" onNavigate={onClose} />
+          <NavItem active={pathname === "/sozlamalar"} icon={<IconSettings />} label="Sozlamalar" href="/sozlamalar" onNavigate={onClose} />
         </nav>
 
         <div className={styles.sidebarFooter}>
