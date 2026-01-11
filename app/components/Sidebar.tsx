@@ -1,4 +1,6 @@
-'use client'
+"use client"
+
+import React from "react"
 import Link from "next/link"
 import styles from "../dashboard/dashboard.module.css"
 
@@ -7,19 +9,20 @@ function NavItem({
   label,
   active,
   href,
-  onClick,
+  onNavigate,
 }: {
   icon: React.ReactNode
   label: string
   active?: boolean
   href: string
-  onClick?: () => void
+  onNavigate?: () => void
 }) {
   return (
     <Link
       className={`${styles.navItem} ${active ? styles.navActive : ""}`}
       href={href}
-      onClick={onClick}
+      // ✅ navigatsiya bo‘lganda sidebar yopish
+      onClick={onNavigate}
     >
       <span className={styles.navIcon}>{icon}</span>
       <span className={styles.navLabel}>{label}</span>
@@ -180,54 +183,61 @@ function IconLogout() {
   )
 }
 
-export default function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () => void }) {
+export default function Sidebar({
+  isOpen,
+  onClose,
+}: {
+  isOpen?: boolean
+  onClose?: () => void
+}) {
   return (
     <>
       {/* Overlay for mobile */}
       {isOpen && (
         <div
           style={{
-            position: 'fixed',
+            position: "fixed",
             inset: 0,
-            background: 'rgba(0,0,0,0.5)',
+            background: "rgba(0,0,0,0.5)",
             zIndex: 999,
           }}
           onClick={onClose}
         />
       )}
-      <aside className={`${styles.sidebar} slide-in ${isOpen ? styles.sidebarOpen : ''}`}>
-      <div className={styles.brand}>
-        <div className={styles.brandIcon}>D</div>
-        <div>
-          <div className={styles.brandTitle}>DokonCRM</div>
-          <div className={styles.brandSub}>1-do‘kon</div>
-        </div>
-      </div>
 
-      <nav className={styles.nav}>
-        <NavItem active icon={<IconHome />} label="Dashboard" href="/dashboard" onClick={onClose} />
-        <NavItem icon={<IconCash />} label="Savdo qilish" href="/savdo" onClick={onClose} />
-        <NavItem icon={<IconBox />} label="Mahsulotlar" href="/mahsulotlar" onClick={onClose} />
-        <NavItem icon={<IconUsers />} label="Mijozlar / Qarz" href="/qarz" onClick={onClose} />
-        <NavItem icon={<IconReport />} label="Hisobot" href="/hisobot" onClick={onClose} />
-        <NavItem icon={<IconSettings />} label="Sozlamalar" href="/sozlamalar" onClick={onClose} />
-      </nav>
-
-      <div className={styles.sidebarFooter}>
-        <div className={styles.userCard}>
-          <div className={styles.userAvatar}>R</div>
-          <div className={styles.userMeta}>
-            <div className={styles.userName}>Ro‘zali</div>
-            <div className={styles.userRole}>Admin</div>
+      <aside className={`${styles.sidebar} slide-in ${isOpen ? styles.sidebarOpen : ""}`}>
+        <div className={styles.brand}>
+          <div className={styles.brandIcon}>D</div>
+          <div>
+            <div className={styles.brandTitle}>DokonCRM</div>
+            <div className={styles.brandSub}>1-do‘kon</div>
           </div>
         </div>
 
-        <button className={styles.logoutBtn}>
-          <IconLogout />
-          Chiqish
-        </button>
-      </div>
-    </aside>
+        <nav className={styles.nav}>
+          <NavItem active icon={<IconHome />} label="Dashboard" href="/dashboard" onNavigate={onClose} />
+          <NavItem icon={<IconCash />} label="Savdo qilish" href="/savdo" onNavigate={onClose} />
+          <NavItem icon={<IconBox />} label="Mahsulotlar" href="/mahsulotlar" onNavigate={onClose} />
+          <NavItem icon={<IconUsers />} label="Mijozlar / Qarz" href="/qarz" onNavigate={onClose} />
+          <NavItem icon={<IconReport />} label="Hisobot" href="/hisobot" onNavigate={onClose} />
+          <NavItem icon={<IconSettings />} label="Sozlamalar" href="/sozlamalar" onNavigate={onClose} />
+        </nav>
+
+        <div className={styles.sidebarFooter}>
+          <div className={styles.userCard}>
+            <div className={styles.userAvatar}>R</div>
+            <div className={styles.userMeta}>
+              <div className={styles.userName}>Ro‘zali</div>
+              <div className={styles.userRole}>Admin</div>
+            </div>
+          </div>
+
+          <button className={styles.logoutBtn} type="button">
+            <IconLogout />
+            Chiqish
+          </button>
+        </div>
+      </aside>
     </>
   )
 }
