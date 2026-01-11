@@ -415,6 +415,23 @@ export default function ProductsPage() {
     <div style={styles.page} className="fade-in">
       {/* Header */}
       <div style={styles.header}>
+        <button
+          style={{
+            background: '#2563eb',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 8,
+            padding: '8px 12px',
+            cursor: 'pointer',
+            fontSize: 16,
+            marginRight: 10,
+            display: 'none',
+          }}
+          className="hamburger"
+          onClick={() => window.dispatchEvent(new CustomEvent('toggleSidebar'))}
+        >
+          ☰
+        </button>
         <div>
           <h1 style={styles.title}>📦 Mahsulotlar</h1>
           <p style={styles.sub}>

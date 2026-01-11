@@ -143,6 +143,23 @@ export default function HisobotPage() {
   return (
     <div style={styles.page} className="fade-in">
       <div style={styles.header}>
+        <button
+          style={{
+            background: '#2563eb',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 8,
+            padding: '8px 12px',
+            cursor: 'pointer',
+            fontSize: 16,
+            marginRight: 10,
+            display: 'none',
+          }}
+          className="hamburger"
+          onClick={() => window.dispatchEvent(new CustomEvent('toggleSidebar'))}
+        >
+          ☰
+        </button>
         <h1 style={styles.title}>📊 Hisobot</h1>
         <p style={styles.sub}>
           Savdo statistikasi: bugun, hafta, oy va eng ko‘p sotilgan mahsulotlar.

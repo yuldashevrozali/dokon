@@ -264,6 +264,9 @@ export default function SavdoPage() {
   
         <style>{`
           @media (max-width: 768px) {
+            .hamburger {
+              display: block !important;
+            }
             .grid {
               grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
             }
@@ -282,6 +285,7 @@ export default function SavdoPage() {
             .header {
               flex-direction: column !important;
               align-items: flex-start !important;
+              margin-bottom: 10px !important;
             }
             .tools {
               flex-direction: column !important;
@@ -296,6 +300,23 @@ export default function SavdoPage() {
   return (
     <div style={styles.page} className="page fade-in">
       <div style={styles.header}>
+        <button
+          style={{
+            background: '#2563eb',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 8,
+            padding: '8px 12px',
+            cursor: 'pointer',
+            fontSize: 16,
+            marginRight: 10,
+            display: 'none',
+          }}
+          className="hamburger"
+          onClick={() => window.dispatchEvent(new CustomEvent('toggleSidebar'))}
+        >
+          ☰
+        </button>
         <div>
           <h1 style={styles.title}> Savdo qilish</h1>
           <p style={styles.sub}>
