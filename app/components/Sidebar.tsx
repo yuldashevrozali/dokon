@@ -3,7 +3,7 @@
 import React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import styles from "../dashboard/dashboard.module.css"
+import styles from "@/app/(dashboard)/dashboard/dashboard.module.css"
 
 function NavItem({
   icon,
