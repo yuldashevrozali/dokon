@@ -176,9 +176,22 @@ function IconLogout() {
   )
 }
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () => void }) {
   return (
-    <aside className={`${styles.sidebar} slide-in`}>
+    <>
+      {/* Overlay for mobile */}
+      {isOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 999,
+          }}
+          onClick={onClose}
+        />
+      )}
+      <aside className={`${styles.sidebar} slide-in ${isOpen ? styles.sidebarOpen : ''}`}>
       <div className={styles.brand}>
         <div className={styles.brandIcon}>D</div>
         <div>
@@ -211,5 +224,6 @@ export default function Sidebar() {
         </button>
       </div>
     </aside>
+    </>
   )
 }
