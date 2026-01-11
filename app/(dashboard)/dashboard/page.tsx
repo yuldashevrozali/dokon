@@ -105,16 +105,18 @@ export default function DashboardPage() {
     <>
       {/* Topbar */}
       <header className={`${styles.topbar} fade-in`}>
-        <button className={`${styles.hamburger} hamburger`} onClick={() => window.dispatchEvent(new CustomEvent('toggleSidebar'))}>
-          ☰
-        </button>
-        <div className={styles.topLeft}>
-          <h1 className={styles.pageTitle}>Dashboard</h1>
-          <p className={styles.pageSubtitle}>
-            Bugungi holat: <span className={styles.badgeOk}>Ochiq</span>{" "}
-            <span className={styles.dot} /> Sana:{" "}
-            {new Date().toLocaleDateString()}
-          </p>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <button className={`${styles.hamburger} hamburger`} onClick={() => window.dispatchEvent(new CustomEvent('toggleSidebar'))}>
+            ☰
+          </button>
+          <div className={styles.topLeft}>
+            <h1 className={styles.pageTitle}>Dashboard</h1>
+            <p className={styles.pageSubtitle}>
+              Bugungi holat: <span className={styles.badgeOk}>Ochiq</span>{" "}
+              <span className={styles.dot} /> Sana:{" "}
+              {new Date().toLocaleDateString()}
+            </p>
+          </div>
         </div>
 
         <div className={styles.topRight}>
