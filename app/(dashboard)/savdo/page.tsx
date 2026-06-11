@@ -41,6 +41,8 @@ export default function SavdoPage() {
   const [customerName, setCustomerName] = useState("")
   const [customerPhone, setCustomerPhone] = useState("")
   const [dueDate, setDueDate] = useState("")
+  // Mobil savat
+  const [mobileCartOpen, setMobileCartOpen] = useState(false)
 
   useEffect(() => {
     fetch("/api/products")
@@ -165,10 +167,149 @@ export default function SavdoPage() {
 
   const inCart = (id: string) => cart.find((c) => c.product._id === id)
 
+  const cartPanel = (
+    <>
+      <div style={{ padding: "18px 16px 12px", borderBottom: "1px solid #eef2f7" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ fontWeight: 900, fontSize: 16, color: "#0f172a" }}>
+            🛒 Savat {cart.length > 0 && <span style={{ background: "#2563eb", color: "#fff", borderRadius: 999, padding: "2px 8px", fontSize: 12, marginLeft: 6 }}>{cart.length}</span>}
+          </div>
+          <button className="cartCloseBtn" onClick={() => setMobileCartOpen(false)}>✕</button>
+        </div>
+        <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
+          {cart.length === 0 ? "Hali hech narsa qoʼshilmagan" : `${cart.length} xil mahsulot`}
+        </div>
+      </div>
+
+      <div style={{ flex: 1, overflowY: "auto", padding: "12px 16px" }}>
+        {cart.length === 0 ? (
+          <div style={{ textAlign: "center", color: "#94a3b8", marginTop: 60, fontSize: 14 }}>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>🛒</div>
+            Mahsulot tanlang
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {cart.map((item) => (
+              <div key={item.product._id} style={{ border: "1px solid #eef2f7", borderRadius: 14, padding: "10px 12px", background: "#fbfdff" }}>
+                <div style={{ fontWeight: 800, fontSize: 13, color: "#0f172a", marginBottom: 4 }}>{item.product.name}</div>
+                <div style={{ fontSize: 12, color: "#64748b", marginBottom: 8 }}>
+                  {formatUZS(item.product.sellPrice)} so&apos;m × {item.quantity} {item.product.unit}
+                </div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <button onClick={() => updateQty(item.product._id, item.quantity - 1)} style={qtyBtnStyle}>−</button>
+                    <span style={{ fontWeight: 900, minWidth: 24, textAlign: "center", fontSize: 14 }}>{item.quantity}</span>
+                    <button
+                      onClick={() => item.quantity < item.product.stock && updateQty(item.product._id, item.quantity + 1)}
+                      style={{ ...qtyBtnStyle, opacity: item.quantity >= item.product.stock ? 0.4 : 1 }}
+                    >+</button>
+                  </div>
+                  <div style={{ fontWeight: 900, color: "#2563eb", fontSize: 14 }}>
+                    {formatUZS(item.product.sellPrice * item.quantity)} so&apos;m
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {cart.length > 0 && (
+        <div style={{ padding: "14px 16px", borderTop: "1px solid #eef2f7" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4, fontSize: 13, color: "#64748b" }}>
+            <span>Jami summa</span>
+            <span style={{ fontWeight: 900, color: "#0f172a" }}>{formatUZS(cartTotal)} so&apos;m</span>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14, fontSize: 13, color: "#64748b" }}>
+            <span>Foyda</span>
+            <span style={{ fontWeight: 900, color: "#16a34a" }}>{formatUZS(cartProfit)} so&apos;m</span>
+          </div>
+
+          <div style={{ marginBottom: 12 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 6 }}>To&apos;lov turi</div>
+            <div style={{ display: "flex", gap: 6 }}>
+              {(["naqd", "karta", "qarz"] as PaymentType[]).map((pt) => (
+                <button
+                  key={pt}
+                  onClick={() => setPaymentType(pt)}
+                  style={{
+                    flex: 1,
+                    padding: "8px 4px",
+                    borderRadius: 10,
+                    border: "1px solid",
+                    fontWeight: 800,
+                    fontSize: 12,
+                    cursor: "pointer",
+                    background: paymentType === pt
+                      ? pt === "qarz" ? "#fee2e2" : pt === "karta" ? "#eff6ff" : "#f0fdf4"
+                      : "#f8fafc",
+                    color: paymentType === pt
+                      ? pt === "qarz" ? "#b91c1c" : pt === "karta" ? "#1d4ed8" : "#065f46"
+                      : "#64748b",
+                    borderColor: paymentType === pt
+                      ? pt === "qarz" ? "#fca5a5" : pt === "karta" ? "#93c5fd" : "#86efac"
+                      : "#e5e7ef",
+                  }}
+                >
+                  {pt === "naqd" ? "💵 Naqd" : pt === "karta" ? "💳 Karta" : "📋 Qarz"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {paymentType === "qarz" && (
+            <div style={{ background: "#fff5f5", border: "1px solid #fecaca", borderRadius: 12, padding: "12px", marginBottom: 12, display: "grid", gap: 8 }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: "#b91c1c", marginBottom: 2 }}>
+                📋 Qarz ma&apos;lumotlari
+              </div>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#334155", marginBottom: 4 }}>Mijoz ismi *</div>
+                <input style={qarzInp} value={customerName} onChange={e => setCustomerName(e.target.value)} placeholder="Otabek, Dilshod..." />
+              </div>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#334155", marginBottom: 4 }}>Telefon (ixtiyoriy)</div>
+                <input style={qarzInp} value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} placeholder="+998 90 123 45 67" />
+              </div>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#334155", marginBottom: 4 }}>Qaytarish sanasi (ixtiyoriy)</div>
+                <input type="date" style={qarzInp} value={dueDate} onChange={e => setDueDate(e.target.value)} />
+              </div>
+              <div style={{ fontSize: 11, color: "#b91c1c", marginTop: 2 }}>
+                ⚠️ Qarz kassaga kirmaydi — to&apos;langandan keyin kirim bo&apos;ladi
+              </div>
+            </div>
+          )}
+
+          <button
+            onClick={sellAll}
+            disabled={selling}
+            style={{
+              width: "100%", padding: "13px 16px",
+              background: selling ? "#93c5fd" : paymentType === "qarz" ? "#dc2626" : "#2563eb",
+              color: "#fff", border: "none", borderRadius: 14, fontWeight: 900, fontSize: 15,
+              cursor: selling ? "not-allowed" : "pointer",
+              boxShadow: paymentType === "qarz" ? "0 8px 18px rgba(220,38,38,.2)" : "0 8px 18px rgba(37,99,235,.2)",
+            }}
+          >
+            {selling ? "Saqlanmoqda..." : paymentType === "qarz"
+              ? `📋 Qarz yozish (${formatUZS(cartTotal)} so'm)`
+              : `✅ Sotish — ${formatUZS(cartTotal)} so'm`}
+          </button>
+          <button
+            onClick={() => { setCart([]); setPaymentType("naqd"); setCustomerName(""); setCustomerPhone(""); setDueDate("") }}
+            style={{ width: "100%", marginTop: 8, padding: "9px", background: "transparent", border: "1px solid #e5e7ef", borderRadius: 12, color: "#64748b", cursor: "pointer", fontWeight: 700, fontSize: 13 }}
+          >
+            Savatni tozalash
+          </button>
+        </div>
+      )}
+    </>
+  )
+
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#f7f8fb" }}>
+    <div className="savdoWrap">
       {/* LEFT: mahsulotlar */}
-      <div style={{ flex: 1, padding: 22, minWidth: 0 }}>
+      <div className="savdoLeft">
         {/* Header */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
           <button
@@ -189,13 +330,13 @@ export default function SavdoPage() {
         {/* Filters */}
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginBottom: 16 }}>
           <input
-            style={{ borderRadius: 14, border: "1px solid #e5e7ef", padding: "10px 12px", background: "#fff", outline: "none", minWidth: 220, fontSize: 14 }}
+            style={{ borderRadius: 14, border: "1px solid #e5e7ef", padding: "10px 12px", background: "#fff", outline: "none", minWidth: 180, fontSize: 14, flex: 1 }}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Qidirish: nomi yoki shtrix-kod..."
           />
           <select
-            style={{ borderRadius: 14, border: "1px solid #e5e7ef", padding: "10px 12px", background: "#fff", outline: "none", minWidth: 180, cursor: "pointer", fontSize: 14 }}
+            style={{ borderRadius: 14, border: "1px solid #e5e7ef", padding: "10px 12px", background: "#fff", outline: "none", minWidth: 150, cursor: "pointer", fontSize: 14 }}
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
           >
@@ -203,11 +344,11 @@ export default function SavdoPage() {
               <option key={c} value={c}>{c === "all" ? "Barcha kategoriya" : c}</option>
             ))}
           </select>
-          <span style={{ color: "#64748b", fontSize: 12 }}>Mavjud: {availableProducts.length} ta</span>
+          <span style={{ color: "#64748b", fontSize: 12, whiteSpace: "nowrap" }}>Mavjud: {availableProducts.length} ta</span>
         </div>
 
         {/* Product grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 12 }}>
+        <div className="productGrid">
           {availableProducts.length === 0 ? (
             <div style={{ gridColumn: "1/-1", textAlign: "center", color: "#64748b", padding: 40 }}>
               Mahsulot topilmadi
@@ -236,10 +377,7 @@ export default function SavdoPage() {
 
                   {cartItem ? (
                     <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
-                      <button
-                        onClick={() => updateQty(p._id, cartItem.quantity - 1)}
-                        style={qtyBtnStyle}
-                      >−</button>
+                      <button onClick={() => updateQty(p._id, cartItem.quantity - 1)} style={qtyBtnStyle}>−</button>
                       <span style={{ fontWeight: 900, minWidth: 24, textAlign: "center" }}>{cartItem.quantity}</span>
                       <button
                         onClick={() => cartItem.quantity < p.stock && updateQty(p._id, cartItem.quantity + 1)}
@@ -265,181 +403,127 @@ export default function SavdoPage() {
         </div>
       </div>
 
-      {/* RIGHT: savat */}
-      <div style={{
-        width: 320,
-        minWidth: 280,
-        background: "#fff",
-        borderLeft: "1px solid #e8ebf3",
-        display: "flex",
-        flexDirection: "column",
-        position: "sticky",
-        top: 0,
-        height: "100vh",
-        overflowY: "auto",
-      }}>
-        <div style={{ padding: "18px 16px 12px", borderBottom: "1px solid #eef2f7" }}>
-          <div style={{ fontWeight: 900, fontSize: 16, color: "#0f172a" }}>
-            🛒 Savat {cart.length > 0 && <span style={{ background: "#2563eb", color: "#fff", borderRadius: 999, padding: "2px 8px", fontSize: 12, marginLeft: 6 }}>{cart.length}</span>}
-          </div>
-          <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
-            {cart.length === 0 ? "Hali hech narsa qoʼshilmagan" : `${cart.length} xil mahsulot`}
-          </div>
+      {/* DESKTOP: right cart panel */}
+      <div className="cartDesktop">
+        {cartPanel}
+      </div>
+
+      {/* MOBILE: bottom bar + drawer */}
+      {cart.length > 0 && (
+        <div className="mobileCartBar" onClick={() => setMobileCartOpen(true)}>
+          <span style={{ fontWeight: 900, fontSize: 14, color: "#fff" }}>
+            🛒 {cart.length} ta mahsulot
+          </span>
+          <span style={{ fontWeight: 900, fontSize: 14, color: "#fff" }}>
+            {formatUZS(cartTotal)} so&apos;m →
+          </span>
         </div>
+      )}
 
-        <div style={{ flex: 1, overflowY: "auto", padding: "12px 16px" }}>
-          {cart.length === 0 ? (
-            <div style={{ textAlign: "center", color: "#94a3b8", marginTop: 60, fontSize: 14 }}>
-              <div style={{ fontSize: 40, marginBottom: 12 }}>🛒</div>
-              Mahsulot tanlang
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {cart.map((item) => (
-                <div key={item.product._id} style={{ border: "1px solid #eef2f7", borderRadius: 14, padding: "10px 12px", background: "#fbfdff" }}>
-                  <div style={{ fontWeight: 800, fontSize: 13, color: "#0f172a", marginBottom: 4 }}>{item.product.name}</div>
-                  <div style={{ fontSize: 12, color: "#64748b", marginBottom: 8 }}>
-                    {formatUZS(item.product.sellPrice)} so&apos;m × {item.quantity} {item.product.unit}
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <button onClick={() => updateQty(item.product._id, item.quantity - 1)} style={qtyBtnStyle}>−</button>
-                      <span style={{ fontWeight: 900, minWidth: 24, textAlign: "center", fontSize: 14 }}>{item.quantity}</span>
-                      <button
-                        onClick={() => item.quantity < item.product.stock && updateQty(item.product._id, item.quantity + 1)}
-                        style={{ ...qtyBtnStyle, opacity: item.quantity >= item.product.stock ? 0.4 : 1 }}
-                      >+</button>
-                    </div>
-                    <div style={{ fontWeight: 900, color: "#2563eb", fontSize: 14 }}>
-                      {formatUZS(item.product.sellPrice * item.quantity)} so&apos;m
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        {cart.length > 0 && (
-          <div style={{ padding: "14px 16px", borderTop: "1px solid #eef2f7" }}>
-            {/* Jami */}
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4, fontSize: 13, color: "#64748b" }}>
-              <span>Jami summa</span>
-              <span style={{ fontWeight: 900, color: "#0f172a" }}>{formatUZS(cartTotal)} so&apos;m</span>
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14, fontSize: 13, color: "#64748b" }}>
-              <span>Foyda</span>
-              <span style={{ fontWeight: 900, color: "#16a34a" }}>{formatUZS(cartProfit)} so&apos;m</span>
-            </div>
-
-            {/* To'lov turi */}
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 6 }}>To&apos;lov turi</div>
-              <div style={{ display: "flex", gap: 6 }}>
-                {(["naqd", "karta", "qarz"] as PaymentType[]).map((pt) => (
-                  <button
-                    key={pt}
-                    onClick={() => setPaymentType(pt)}
-                    style={{
-                      flex: 1,
-                      padding: "8px 4px",
-                      borderRadius: 10,
-                      border: "1px solid",
-                      fontWeight: 800,
-                      fontSize: 12,
-                      cursor: "pointer",
-                      background: paymentType === pt
-                        ? pt === "qarz" ? "#fee2e2" : pt === "karta" ? "#eff6ff" : "#f0fdf4"
-                        : "#f8fafc",
-                      color: paymentType === pt
-                        ? pt === "qarz" ? "#b91c1c" : pt === "karta" ? "#1d4ed8" : "#065f46"
-                        : "#64748b",
-                      borderColor: paymentType === pt
-                        ? pt === "qarz" ? "#fca5a5" : pt === "karta" ? "#93c5fd" : "#86efac"
-                        : "#e5e7ef",
-                    }}
-                  >
-                    {pt === "naqd" ? "💵 Naqd" : pt === "karta" ? "💳 Karta" : "📋 Qarz"}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Qarz bo'lsa — mijoz ma'lumotlari */}
-            {paymentType === "qarz" && (
-              <div style={{ background: "#fff5f5", border: "1px solid #fecaca", borderRadius: 12, padding: "12px", marginBottom: 12, display: "grid", gap: 8 }}>
-                <div style={{ fontSize: 12, fontWeight: 800, color: "#b91c1c", marginBottom: 2 }}>
-                  📋 Qarz ma&apos;lumotlari
-                </div>
-                <div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "#334155", marginBottom: 4 }}>Mijoz ismi *</div>
-                  <input
-                    style={qarzInp}
-                    value={customerName}
-                    onChange={e => setCustomerName(e.target.value)}
-                    placeholder="Otabek, Dilshod..."
-                  />
-                </div>
-                <div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "#334155", marginBottom: 4 }}>Telefon (ixtiyoriy)</div>
-                  <input
-                    style={qarzInp}
-                    value={customerPhone}
-                    onChange={e => setCustomerPhone(e.target.value)}
-                    placeholder="+998 90 123 45 67"
-                  />
-                </div>
-                <div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "#334155", marginBottom: 4 }}>Qaytarish sanasi (ixtiyoriy)</div>
-                  <input
-                    type="date"
-                    style={qarzInp}
-                    value={dueDate}
-                    onChange={e => setDueDate(e.target.value)}
-                  />
-                </div>
-                <div style={{ fontSize: 11, color: "#b91c1c", marginTop: 2 }}>
-                  ⚠️ Qarz kassaga kirmaydi — to&apos;langandan keyin kirim bo&apos;ladi
-                </div>
-              </div>
-            )}
-
-            <button
-              onClick={sellAll}
-              disabled={selling}
-              style={{
-                width: "100%",
-                padding: "13px 16px",
-                background: selling ? "#93c5fd" : paymentType === "qarz" ? "#dc2626" : "#2563eb",
-                color: "#fff",
-                border: "none",
-                borderRadius: 14,
-                fontWeight: 900,
-                fontSize: 15,
-                cursor: selling ? "not-allowed" : "pointer",
-                boxShadow: paymentType === "qarz" ? "0 8px 18px rgba(220,38,38,.2)" : "0 8px 18px rgba(37,99,235,.2)",
-              }}
-            >
-              {selling
-                ? "Saqlanmoqda..."
-                : paymentType === "qarz"
-                ? `📋 Qarz yozish (${formatUZS(cartTotal)} so'm)`
-                : `✅ Sotish — ${formatUZS(cartTotal)} so'm`}
-            </button>
-            <button
-              onClick={() => { setCart([]); setPaymentType("naqd"); setCustomerName(""); setCustomerPhone(""); setDueDate("") }}
-              style={{ width: "100%", marginTop: 8, padding: "9px", background: "transparent", border: "1px solid #e5e7ef", borderRadius: 12, color: "#64748b", cursor: "pointer", fontWeight: 700, fontSize: 13 }}
-            >
-              Savatni tozalash
-            </button>
-          </div>
-        )}
+      {mobileCartOpen && (
+        <div className="mobileOverlay" onClick={() => setMobileCartOpen(false)} />
+      )}
+      <div className={`mobileCartDrawer${mobileCartOpen ? " mobileCartDrawerOpen" : ""}`}>
+        {cartPanel}
       </div>
 
       <style>{`
+        .savdoWrap {
+          display: flex;
+          min-height: 100vh;
+          background: #f7f8fb;
+        }
+        .savdoLeft {
+          flex: 1;
+          padding: 22px;
+          min-width: 0;
+        }
+        .productGrid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+          gap: 12px;
+        }
+        .cartDesktop {
+          width: 320px;
+          min-width: 280px;
+          background: #fff;
+          border-left: 1px solid #e8ebf3;
+          display: flex;
+          flex-direction: column;
+          position: sticky;
+          top: 0;
+          height: 100vh;
+          overflow-y: auto;
+        }
+        .cartCloseBtn {
+          display: none;
+          background: #f1f5f9;
+          border: none;
+          border-radius: 8px;
+          padding: 6px 10px;
+          cursor: pointer;
+          font-size: 14px;
+          color: #334155;
+          font-weight: 700;
+        }
+        .mobileCartBar {
+          display: none;
+        }
+        .mobileOverlay {
+          display: none;
+        }
+        .mobileCartDrawer {
+          display: none;
+        }
         @media (max-width: 768px) {
           .hamburger { display: block !important; }
+          .savdoLeft { padding: 14px 12px 80px; }
+          .productGrid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+          .cartDesktop { display: none; }
+          .cartCloseBtn { display: block; }
+          .mobileCartBar {
+            display: flex;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #2563eb;
+            padding: 14px 20px;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 200;
+            cursor: pointer;
+            box-shadow: 0 -4px 20px rgba(37,99,235,.3);
+          }
+          .mobileOverlay {
+            display: block;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 300;
+          }
+          .mobileCartDrawer {
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 85vh;
+            background: #fff;
+            border-radius: 20px 20px 0 0;
+            z-index: 400;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            overflow: hidden;
+          }
+          .mobileCartDrawerOpen {
+            transform: translateY(0);
+          }
+        }
+        @media (max-width: 480px) {
+          .savdoLeft { padding: 10px 10px 80px; }
+          .productGrid { grid-template-columns: 1fr 1fr; gap: 8px; }
         }
       `}</style>
     </div>

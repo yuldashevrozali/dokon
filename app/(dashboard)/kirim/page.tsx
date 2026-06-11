@@ -151,11 +151,11 @@ export default function KirimPage() {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 20, alignItems: "start" }}>
+      <div className="kirimGrid">
         {/* LEFT: tarix */}
         <div>
           {/* Stats */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 16 }}>
+          <div className="kirimStats">
             {[
               { label: "Jami kirimlar", value: `${entries.length} ta` },
               { label: "Bugungi xarajat", value: `${fmt(totalToday)} so'm` },
@@ -187,7 +187,7 @@ export default function KirimPage() {
               </div>
             ) : (
               <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: 0, fontSize: 13, minWidth: 640 }}>
+                <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: 0, fontSize: 13, minWidth: 560 }}>
                   <thead>
                     <tr style={{ background: "#fbfcff" }}>
                       {["Sana", "Mahsulot", "Miqdor", "Kelish narxi", "Jami", "Yetkazib beruvchi", ""].map(h => (
@@ -226,7 +226,7 @@ export default function KirimPage() {
         </div>
 
         {/* RIGHT: form */}
-        <div style={{ background: "#fff", border: "1px solid #e8ebf3", borderRadius: 18, padding: 20, boxShadow: "0 4px 20px rgba(15,23,42,.05)", position: "sticky", top: 20 }}>
+        <div className="kirimFormWrap">
           <div style={{ fontWeight: 900, fontSize: 16, color: "#0f172a", marginBottom: 4 }}>Yangi kirim qo&apos;shish</div>
           <div style={{ fontSize: 13, color: "#64748b", marginBottom: 18 }}>Mahsulot tanlang va miqdorni kiriting</div>
 
@@ -290,11 +290,35 @@ export default function KirimPage() {
       </div>
 
       <style>{`
+        .kirimGrid {
+          display: grid;
+          grid-template-columns: 1fr 340px;
+          gap: 20px;
+          align-items: start;
+        }
+        .kirimStats {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 12px;
+          margin-bottom: 16px;
+        }
+        .kirimFormWrap {
+          background: #fff;
+          border: 1px solid #e8ebf3;
+          border-radius: 18px;
+          padding: 20px;
+          box-shadow: 0 4px 20px rgba(15,23,42,.05);
+          position: sticky;
+          top: 20px;
+        }
         @media (max-width: 768px) {
           .hamburger { display: block !important; }
-          div[style*="gridTemplateColumns: 1fr 340px"] { grid-template-columns: 1fr !important; }
-          div[style*="gridTemplateColumns: repeat(3, 1fr)"] { grid-template-columns: 1fr !important; }
-          div[style*="position: sticky"] { position: static !important; }
+          .kirimGrid { grid-template-columns: 1fr; }
+          .kirimStats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+          .kirimFormWrap { position: static; }
+        }
+        @media (max-width: 480px) {
+          .kirimStats { grid-template-columns: 1fr; }
         }
       `}</style>
     </div>
