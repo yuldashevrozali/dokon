@@ -1,112 +1,93 @@
 'use client'
+import { useEffect, useState } from 'react'
 import styles from "./dashboard.module.css"
 
-type Stat = {
-  label: string
-  value: string
-  sub?: string
-  icon: React.ReactNode
-}
-
-type SaleRow = {
-  time: string
-  receipt: string
-  cashier: string
-  items: number
-  payment: "Naqd" | "Karta" | "Qarz"
-  total: string
-}
-
-type LowStock = {
-  name: string
-  left: number
+type Sale = {
+  _id: string
+  productName: string
+  quantity: number
   unit: string
-  status: "low" | "critical"
+  sellPrice: number
+  total: number
+  profit: number
+  timestamp: string
+  payment?: "Naqd" | "Karta" | "Qarz"
+}
+
+type LowStockProduct = {
+  _id: string
+  name: string
+  stock: number
+  unit: string
+  lowStockLimit: number
+}
+
+type DashboardData = {
+  todayTotal: number
+  todayProfit: number
+  todaySalesCount: number
+  totalProducts: number
+  totalStock: number
+  outOfStock: number
+  lowStockProducts: LowStockProduct[]
+  recentSales: Sale[]
+}
+
+function formatUZS(n: number) {
+  if (!Number.isFinite(n)) return "0"
+  return new Intl.NumberFormat("en-US").format(Math.round(n))
+}
+
+function formatTime(ts: string) {
+  const d = new Date(ts)
+  return d.toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" })
 }
 
 export default function DashboardPage() {
-  // Demo data (keyin API’dan ulaysan)
-  const stats: Stat[] = [
-    {
-      label: "Bugungi savdo",
-      value: "1 250 000 so‘m",
-      sub: "+12% kechagiga nisbatan",
-      icon: <IconBag />,
-    },
-    {
-      label: "Bugungi foyda",
-      value: "320 000 so‘m",
-      sub: "O‘rtacha marja ~25%",
-      icon: <IconChart />,
-    },
-    {
-      label: "Qarzlar (jami)",
-      value: "540 000 so‘m",
-      sub: "14 ta mijoz",
-      icon: <IconWallet />,
-    },
-    {
-      label: "Ombor qoldiq",
-      value: "186 ta mahsulot",
-      sub: "8 ta oz qoldi",
-      icon: <IconBox />,
-    },
-  ]
+  const [data, setData] = useState<DashboardData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+  const [resetting, setResetting] = useState(false)
 
-  const recentSales: SaleRow[] = [
-    {
-      time: "10:12",
-      receipt: "#A-1023",
-      cashier: "Sotuvchi 1",
-      items: 8,
-      payment: "Naqd",
-      total: "112 000",
-    },
-    {
-      time: "11:05",
-      receipt: "#A-1024",
-      cashier: "Sotuvchi 2",
-      items: 3,
-      payment: "Karta",
-      total: "58 000",
-    },
-    {
-      time: "12:44",
-      receipt: "#A-1025",
-      cashier: "Sotuvchi 1",
-      items: 12,
-      payment: "Qarz",
-      total: "205 000",
-    },
-    {
-      time: "14:20",
-      receipt: "#A-1026",
-      cashier: "Sotuvchi 2",
-      items: 2,
-      payment: "Naqd",
-      total: "21 000",
-    },
-  ]
+  useEffect(() => {
+    fetch("/api/dashboard")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.error) throw new Error(d.error)
+        setData(d)
+      })
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false))
+  }, [])
 
-  const lowStock: LowStock[] = [
-    { name: "Shakar", left: 5, unit: "dona", status: "critical" },
-    { name: "Un (2kg)", left: 3, unit: "dona", status: "critical" },
-    { name: "Choy", left: 9, unit: "quti", status: "low" },
-    { name: "Yog‘ (1L)", left: 7, unit: "dona", status: "low" },
-  ]
+  async function handleReset() {
+    const confirmed = window.confirm(
+      "⚠️ DIQQAT!\n\nQuyidagilar O'CHIRILADI:\n• Barcha savdolar\n• Barcha kirimlar (ombor)\n• Barcha kassa harakatlari\n• Barcha qarzlar\n• Barcha mahsulotlar soni → 0 ga tushadi\n\nMahsulot nomlari va narxlari SAQLANADI.\n\nDavom etasizmi?"
+    )
+    if (!confirmed) return
+    const confirmed2 = window.confirm("Oxirgi tasdiqlash: Hamma ma'lumot o'chiriladi. Ishonchingiz komilmi?")
+    if (!confirmed2) return
 
-  const topDebts = [
-    { name: "Otabek", amount: "160 000", days: 12 },
-    { name: "Dilshod", amount: "120 000", days: 8 },
-    { name: "Mahliyo", amount: "90 000", days: 20 },
-  ]
+    setResetting(true)
+    try {
+      const res = await fetch("/api/reset", { method: "POST" })
+      if (!res.ok) throw new Error("Reset muvaffaqiyatsiz")
+      window.location.reload()
+    } catch (e) {
+      alert("Xatolik: " + (e instanceof Error ? e.message : "Noma'lum xato"))
+    } finally {
+      setResetting(false)
+    }
+  }
 
   return (
     <>
-      {/* Topbar */}
       <header className={`${styles.topbar} fade-in`}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <button className={`${styles.hamburger} hamburger`} onClick={() => window.dispatchEvent(new CustomEvent('toggleSidebar'))}>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <button
+            className={`${styles.hamburger} hamburger`}
+            onClick={() => window.dispatchEvent(new CustomEvent("toggleSidebar"))}
+          >
             ☰
           </button>
           <div className={styles.topLeft}>
@@ -114,366 +95,325 @@ export default function DashboardPage() {
             <p className={styles.pageSubtitle}>
               Bugungi holat: <span className={styles.badgeOk}>Ochiq</span>{" "}
               <span className={styles.dot} /> Sana:{" "}
-              {new Date().toLocaleDateString()}
+              {new Date().toLocaleDateString("uz-UZ")}
             </p>
           </div>
         </div>
-
         <div className={styles.topRight}>
           <div className={styles.searchWrap}>
             <IconSearch />
-            <input
-              className={styles.search}
-              placeholder="Mahsulot, mijoz yoki чек qidirish..."
-            />
+            <input className={styles.search} placeholder="Mahsulot yoki chek qidirish..." />
           </div>
-
           <button className={styles.iconBtn} title="Bildirishnomalar">
             <IconBell />
             <span className={styles.ping} />
           </button>
+          <button
+            onClick={handleReset}
+            disabled={resetting}
+            title="Tizimni qayta boshlash"
+            style={{
+              padding: "8px 14px",
+              borderRadius: 12,
+              border: "1px solid #fecaca",
+              background: resetting ? "#f1f5f9" : "#fff5f5",
+              color: "#b91c1c",
+              fontWeight: 800,
+              fontSize: 13,
+              cursor: resetting ? "not-allowed" : "pointer",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {resetting ? "..." : "⟳ Restart"}
+          </button>
         </div>
       </header>
 
-      {/* Content grid */}
       <section className={`${styles.content} slide-in`}>
-        {/* Stat cards */}
-        <div className={styles.statsGrid}>
-          {stats.map((s, i) => (
-            <div key={s.label} className={`${styles.statCard} fade-in`} style={{ animationDelay: `${i * 0.1}s` }}>
-              <div className={styles.statTop}>
-                <div className={styles.statIcon}>{s.icon}</div>
-                <div className={styles.statLabel}>{s.label}</div>
-              </div>
-              <div className={styles.statValue}>{s.value}</div>
-              {s.sub ? <div className={styles.statSub}>{s.sub}</div> : null}
-            </div>
-          ))}
-        </div>
+        {loading && (
+          <div style={{ textAlign: "center", padding: 60, color: "#94a3b8" }}>
+            Ma&apos;lumotlar yuklanmoqda...
+          </div>
+        )}
+        {error && (
+          <div style={{ textAlign: "center", padding: 40, color: "#b91c1c", background: "#fee2e2", borderRadius: 14 }}>
+            Xatolik: {error}
+          </div>
+        )}
 
-        {/* Quick actions */}
-        <div className={`${styles.quickRow} fade-in`} style={{ animationDelay: '0.4s' }}>
-          <button className={styles.primaryBtn}>
-            <IconPlus />
-            Yangi savdo
-          </button>
-          <button className={styles.secondaryBtn}>
-            <IconPlus />
-            Mahsulot qo‘shish
-          </button>
-          <button className={styles.secondaryBtn}>
-            <IconPlus />
-            Qarz yozish
-          </button>
-          <button className={styles.ghostBtn}>
-            <IconDownload />
-            Excel eksport
-          </button>
-        </div>
-
-        {/* Two columns */}
-        <div className={`${styles.twoCol} fade-in`} style={{ animationDelay: '0.5s' }}>
-          {/* Left column */}
-          <div className={styles.panel}>
-            <div className={styles.panelHeader}>
-              <div>
-                <div className={styles.panelTitle}>So‘nggi savdolar</div>
-                <div className={styles.panelSub}>
-                  Bugun amalga oshgan cheklar
-                </div>
-              </div>
-              <button className={styles.linkBtn}>Hammasi →</button>
-            </div>
-
-            <div className={styles.tableWrap}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>Vaqt</th>
-                    <th>Chek</th>
-                    <th>Sotuvchi</th>
-                    <th>Item</th>
-                    <th>To‘lov</th>
-                    <th className={styles.right}>Summa</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentSales.map((r) => (
-                      <tr key={r.receipt}>
-                        <td className={styles.mono}>{r.time}</td>
-                        <td className={styles.mono}>{r.receipt}</td>
-                        <td>{r.cashier}</td>
-                        <td className={styles.mono}>{r.items}</td>
-                        <td>
-                          <PaymentPill value={r.payment} />
-                        </td>
-                        <td className={`${styles.right} ${styles.mono}`}>
-                          {r.total} so‘m
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+        {data && (
+          <>
+            {/* Stat cards */}
+            <div className={styles.statsGrid}>
+              <StatCard
+                icon={<IconBag />}
+                label="Bugungi savdo"
+                value={`${formatUZS(data.todayTotal)} so'm`}
+                sub={`${data.todaySalesCount} ta chek`}
+                delay={0}
+              />
+              <StatCard
+                icon={<IconChart />}
+                label="Bugungi foyda"
+                value={`${formatUZS(data.todayProfit)} so'm`}
+                sub={
+                  data.todayTotal > 0
+                    ? `Marja ~${Math.round((data.todayProfit / data.todayTotal) * 100)}%`
+                    : "Hali savdo yo'q"
+                }
+                delay={0.1}
+              />
+              <StatCard
+                icon={<IconWallet />}
+                label="Qarzlar (jami)"
+                value="—"
+                sub="Qarz moduli tez kunda"
+                delay={0.2}
+              />
+              <StatCard
+                icon={<IconBox />}
+                label="Ombor qoldiq"
+                value={`${formatUZS(data.totalStock)} dona`}
+                sub={`${data.lowStockProducts.length} ta oz qoldi${data.outOfStock ? `, ${data.outOfStock} ta tugagan` : ""}`}
+                delay={0.3}
+              />
             </div>
 
-            {/* Right column */}
-            <div className={styles.stack}>
-              {/* Low stock */}
+            {/* Quick actions */}
+            <div className={`${styles.quickRow} fade-in`} style={{ animationDelay: "0.4s" }}>
+              <a href="/savdo" className={styles.primaryBtn} style={{ textDecoration: "none", display: "inline-flex", gap: 10, alignItems: "center" }}>
+                <IconPlus />
+                Yangi savdo
+              </a>
+              <a href="/mahsulotlar" className={styles.secondaryBtn} style={{ textDecoration: "none", display: "inline-flex", gap: 10, alignItems: "center" }}>
+                <IconPlus />
+                Mahsulot qo&apos;shish
+              </a>
+              <a href="/qarz" className={styles.secondaryBtn} style={{ textDecoration: "none", display: "inline-flex", gap: 10, alignItems: "center" }}>
+                <IconPlus />
+                Qarz yozish
+              </a>
+              <button className={styles.ghostBtn}>
+                <IconDownload />
+                Excel eksport
+              </button>
+            </div>
+
+            {/* Two columns */}
+            <div className={`${styles.twoCol} fade-in`} style={{ animationDelay: "0.5s" }}>
+              {/* Recent sales */}
               <div className={styles.panel}>
                 <div className={styles.panelHeader}>
                   <div>
-                    <div className={styles.panelTitle}>Ombor: oz qoldi</div>
-                    <div className={styles.panelSub}>
-                      Limitdan past tushganlar
-                    </div>
+                    <div className={styles.panelTitle}>So&apos;nggi savdolar</div>
+                    <div className={styles.panelSub}>Bugun va avvalgi cheklar</div>
                   </div>
-                  <button className={styles.linkBtn}>Inventar →</button>
+                  <a href="/hisobot" className={styles.linkBtn}>Hammasi →</a>
                 </div>
 
-                <div className={styles.list}>
-                  {lowStock.map((p) => (
-                    <div key={p.name} className={styles.listRow}>
-                      <div className={styles.listLeft}>
-                        <div className={styles.listName}>{p.name}</div>
-                        <div className={styles.listMeta}>
-                          Qoldi:{" "}
-                          <span className={styles.mono}>
-                            {p.left} {p.unit}
+                {data.recentSales.length === 0 ? (
+                  <div style={{ padding: 24, textAlign: "center", color: "#94a3b8", fontSize: 13 }}>
+                    Hali savdo amalga oshirilmagan
+                  </div>
+                ) : (
+                  <div className={styles.tableWrap}>
+                    <table className={styles.table}>
+                      <thead>
+                        <tr>
+                          <th>Vaqt</th>
+                          <th>Mahsulot</th>
+                          <th>Miqdor</th>
+                          <th>Narx</th>
+                          <th className={styles.right}>Jami</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {data.recentSales.map((s) => (
+                          <tr key={s._id}>
+                            <td className={styles.mono}>{formatTime(s.timestamp)}</td>
+                            <td>{s.productName}</td>
+                            <td className={styles.mono}>{s.quantity} {s.unit}</td>
+                            <td className={styles.mono}>{formatUZS(s.sellPrice)}</td>
+                            <td className={`${styles.right} ${styles.mono}`}>
+                              {formatUZS(s.total)} so&apos;m
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+
+              {/* Right column */}
+              <div className={styles.stack}>
+                {/* Low stock */}
+                <div className={styles.panel}>
+                  <div className={styles.panelHeader}>
+                    <div>
+                      <div className={styles.panelTitle}>Ombor: oz qoldi</div>
+                      <div className={styles.panelSub}>Limitdan past tushganlar</div>
+                    </div>
+                    <a href="/mahsulotlar" className={styles.linkBtn}>Inventar →</a>
+                  </div>
+
+                  {data.lowStockProducts.length === 0 ? (
+                    <div style={{ padding: 20, textAlign: "center", color: "#16a34a", fontSize: 13 }}>
+                      ✅ Barcha mahsulotlar yetarli
+                    </div>
+                  ) : (
+                    <div className={styles.list}>
+                      {data.lowStockProducts.map((p) => (
+                        <div key={p._id} className={styles.listRow}>
+                          <div className={styles.listLeft}>
+                            <div className={styles.listName}>{p.name}</div>
+                            <div className={styles.listMeta}>
+                              Qoldi: <span className={styles.mono}>{p.stock} {p.unit}</span>
+                              {" / limit: "}<span className={styles.mono}>{p.lowStockLimit}</span>
+                            </div>
+                          </div>
+                          <span className={p.stock <= Math.floor(p.lowStockLimit / 2) ? styles.badgeDanger : styles.badgeWarn}>
+                            {p.stock <= Math.floor(p.lowStockLimit / 2) ? "Juda kam" : "Kam"}
                           </span>
                         </div>
-                      </div>
-                      <span
-                        className={
-                          p.status === "critical"
-                            ? styles.badgeDanger
-                            : styles.badgeWarn
-                        }
-                      >
-                        {p.status === "critical" ? "Juda kam" : "Kam"}
-                      </span>
+                      ))}
                     </div>
-                  ))}
+                  )}
                 </div>
-              </div>
 
-              {/* Debts */}
-              <div className={styles.panel}>
-                <div className={styles.panelHeader}>
-                  <div>
-                    <div className={styles.panelTitle}>Qarzlar TOP</div>
-                    <div className={styles.panelSub}>
-                      Eng katta qarzdorlar
+                {/* Summary */}
+                <div className={styles.panel}>
+                  <div className={styles.panelHeader}>
+                    <div>
+                      <div className={styles.panelTitle}>Ombor xulosasi</div>
+                      <div className={styles.panelSub}>Umumiy holat</div>
                     </div>
                   </div>
-                  <button className={styles.linkBtn}>Qarz daftar →</button>
-                </div>
-
-                <div className={styles.debtList}>
-                  {topDebts.map((d) => (
-                    <div key={d.name} className={styles.debtRow}>
-                      <div className={styles.debtName}>{d.name}</div>
+                  <div className={styles.debtList}>
+                    <div className={styles.debtRow}>
+                      <div className={styles.debtName}>Jami mahsulot turlari</div>
                       <div className={styles.debtMeta}>
-                        <span className={styles.mono}>{d.amount} so‘m</span>
-                        <span className={styles.dot} />
-                        <span>{d.days} kun</span>
+                        <span className={styles.mono}>{data.totalProducts} xil</span>
                       </div>
                     </div>
-                  ))}
-                </div>
-
-                <div className={styles.debtFooter}>
-                  <div className={styles.smallNote}>
-                    Eslatma: qarzlar tarixini muntazam yuritsangiz, “unutib
-                    ketish” kamayadi.
+                    <div className={styles.debtRow}>
+                      <div className={styles.debtName}>Jami ombor qoldig&apos;i</div>
+                      <div className={styles.debtMeta}>
+                        <span className={styles.mono}>{formatUZS(data.totalStock)} dona</span>
+                      </div>
+                    </div>
+                    <div className={styles.debtRow}>
+                      <div className={styles.debtName}>Tugagan mahsulotlar</div>
+                      <div className={styles.debtMeta}>
+                        <span className={styles.mono} style={{ color: data.outOfStock > 0 ? "#b91c1c" : "#16a34a" }}>
+                          {data.outOfStock} ta
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <button className={styles.secondaryBtn}>
-                    <IconPlus />
-                    Qarz qo‘shish
-                  </button>
+                  <div className={styles.debtFooter}>
+                    <div className={styles.smallNote}>
+                      Omborni muntazam tekshiring — tugagan mahsulot savdoni to&apos;xtatadi.
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Footer note */}
-          <div className={styles.footerNote}>
-            <span className={styles.muted}>
-              Bu dizayn demo. Keyin API ulanadi: savdo, qoldiq, foyda, qarz —
-              hammasi real bo‘ladi.
-            </span>
-          </div>
-        </section>
+            <div className={styles.footerNote}>
+              <span className={styles.muted}>
+                Ma&apos;lumotlar real vaqtda MongoDB&apos;dan olinmoqda.
+              </span>
+            </div>
+          </>
+        )}
+      </section>
     </>
   )
 }
 
-
-function PaymentPill({ value }: { value: "Naqd" | "Karta" | "Qarz" }) {
-  const cls =
-    value === "Naqd"
-      ? styles.pillOk
-      : value === "Karta"
-        ? styles.pillInfo
-        : styles.pillWarn
-
-  return <span className={`${styles.pill} ${cls}`}>{value}</span>
+function StatCard({ icon, label, value, sub, delay }: {
+  icon: React.ReactNode
+  label: string
+  value: string
+  sub?: string
+  delay?: number
+}) {
+  return (
+    <div className={`${styles.statCard} fade-in`} style={{ animationDelay: `${delay ?? 0}s` }}>
+      <div className={styles.statTop}>
+        <div className={styles.statIcon}>{icon}</div>
+        <div className={styles.statLabel}>{label}</div>
+      </div>
+      <div className={styles.statValue}>{value}</div>
+      {sub && <div className={styles.statSub}>{sub}</div>}
+    </div>
+  )
 }
 
 function IconBag() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M7 8V6a5 5 0 0 1 10 0v2"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-      <path
-        d="M6 8h12l-1 13H7L6 8Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
-      />
+      <path d="M7 8V6a5 5 0 0 1 10 0v2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M6 8h12l-1 13H7L6 8Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
     </svg>
   )
 }
 function IconChart() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M4 19V5"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-      <path
-        d="M4 19h16"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-      <path
-        d="M7 15l4-4 3 3 5-6"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
-        strokeLinecap="round"
-      />
+      <path d="M4 19V5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M4 19h16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M7 15l4-4 3 3 5-6" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" strokeLinecap="round" />
     </svg>
   )
 }
 function IconWallet() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3h-6a2 2 0 0 0-2 2v0a2 2 0 0 0 2 2h6v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M15 12h7v4h-7a2 2 0 0 1-2-2v0a2 2 0 0 1 2-2Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
-      />
+      <path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3h-6a2 2 0 0 0-2 2v0a2 2 0 0 0 2 2h6v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M15 12h7v4h-7a2 2 0 0 1-2-2v0a2 2 0 0 1 2-2Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
     </svg>
   )
 }
 function IconBox() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M21 8.5 12 3 3 8.5 12 14l9-5.5Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M3 8.5V17l9 5 9-5V8.5"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M12 14v8"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
+      <path d="M21 8.5 12 3 3 8.5 12 14l9-5.5Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M3 8.5V17l9 5 9-5V8.5" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M12 14v8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
   )
 }
 function IconSearch() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M10.5 18a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-      />
-      <path
-        d="M21 21l-4.2-4.2"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
+      <path d="M10.5 18a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15Z" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M21 21l-4.2-4.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
   )
 }
 function IconBell() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 7h18s-3 0-3-7Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M13.7 21a2 2 0 0 1-3.4 0"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
+      <path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 7h18s-3 0-3-7Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M13.7 21a2 2 0 0 1-3.4 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
   )
 }
 function IconPlus() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M12 5v14M5 12h14"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
+      <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
   )
 }
 function IconDownload() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M12 3v10"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-      <path
-        d="M8 11l4 4 4-4"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M4 21h16"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
+      <path d="M12 3v10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M8 11l4 4 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4 21h16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
   )
 }

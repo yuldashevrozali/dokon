@@ -94,6 +94,44 @@ function IconBox() {
     </svg>
   )
 }
+function IconWallet() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3h-6a2 2 0 0 0-2 2v0a2 2 0 0 0 2 2h6v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M15 12h7v4h-7a2 2 0 0 1-2-2v0a2 2 0 0 1 2-2Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+function IconTruck() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M1 3h13v13H1V3Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M14 8h4l3 4v4h-7V8Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      <circle cx="5.5" cy="18.5" r="1.5" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="18.5" cy="18.5" r="1.5" stroke="currentColor" strokeWidth="1.8" />
+    </svg>
+  )
+}
 function IconUsers() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -220,7 +258,9 @@ export default function Sidebar({
         <nav className={styles.nav}>
           <NavItem active={pathname === "/dashboard"} icon={<IconHome />} label="Dashboard" href="/dashboard" onNavigate={onClose} />
           <NavItem active={pathname === "/savdo"} icon={<IconCash />} label="Savdo qilish" href="/savdo" onNavigate={onClose} />
+          <NavItem active={pathname === "/kassa"} icon={<IconWallet />} label="Kassa" href="/kassa" onNavigate={onClose} />
           <NavItem active={pathname === "/mahsulotlar"} icon={<IconBox />} label="Mahsulotlar" href="/mahsulotlar" onNavigate={onClose} />
+          <NavItem active={pathname === "/kirim"} icon={<IconTruck />} label="Ombor kirim" href="/kirim" onNavigate={onClose} />
           <NavItem active={pathname === "/qarz"} icon={<IconUsers />} label="Mijozlar / Qarz" href="/qarz" onNavigate={onClose} />
           <NavItem active={pathname === "/hisobot"} icon={<IconReport />} label="Hisobot" href="/hisobot" onNavigate={onClose} />
           <NavItem active={pathname === "/sozlamalar"} icon={<IconSettings />} label="Sozlamalar" href="/sozlamalar" onNavigate={onClose} />
